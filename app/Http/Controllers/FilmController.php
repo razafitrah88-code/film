@@ -60,12 +60,12 @@ class FilmController extends Controller
                         ->OrderBy('created_at', 'asc')
                         ->limit(9)
                         ->get();
-        $comments        = Kritik::select('comment', 'user_id')
+        $comments        = Kritik::with('user')
                         ->where('film_id', '=', $film->id)
-                        ->orderBy('created_at', 'asc')
-                        ->limit(10)
+                        ->latest()
+                        ->limit(15)
                         ->get();
-        $perans         = Peran::all()->where('film_id', '=', $film->id);
+        $perans         = $film->perans()->with('cast')->get();
         return view('components.movie-show', compact('film','filmByGenre','filmByRelease','comments', 'perans'));
     }
 

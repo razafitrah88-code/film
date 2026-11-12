@@ -2,65 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Film;
 use App\Models\Kritik;
-use App\Http\Requests\StoreKritikRequest;
-use App\Http\Requests\UpdateKritikRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KritikController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Store a newly created comment on a film in storage.
      */
-    public function index()
+    public function store(Request $request, Film $film)
     {
-        //
-    }
+        // Backend protection: reject if not authenticated
+        if (!Auth::check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+            return redirect()->guest(route('login', ['redirect' => url()->previous()]))
+                ->with('error', 'Silakan login terlebih dahulu untuk menambahkan komentar.');
+        }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        // Validate comment: not empty, maximum 500 characters
+        $validated = $request->validate([
+            'comment' => 'required|string|max:500',
+        ], [
+            'comment.required' => 'Isi komentar tidak boleh kosong.',
+            'comment.max' => 'Komentar tidak boleh melebihi 500 karakter.',
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreKritikRequest $request)
-    {
-        //
-    }
+        // Save comment strictly using authenticated user's ID
+        Kritik::create([
+            'film_id' => $film->id,
+            'user_id' => Auth::id(),
+            'comment' => trim($validated['comment']),
+            'rating' => (int) $request->input('rating', 5),
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Kritik $kritik)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Kritik $kritik)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateKritikRequest $request, Kritik $kritik)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Kritik $kritik)
-    {
-        //
+        return back()->with('success', 'Komentar Anda berhasil dikirim!');
     }
 }

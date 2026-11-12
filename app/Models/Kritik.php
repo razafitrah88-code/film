@@ -17,4 +17,20 @@ class Kritik extends Model
         'film_id',
         'user_id',
     ];
+
+    /**
+     * Relationship to User who wrote the comment
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relationship to Film being commented on
+     */
+    public function film()
+    {
+        return $this->belongsTo(Film::class, 'film_id');
+    }
 }

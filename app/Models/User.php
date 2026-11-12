@@ -20,7 +20,27 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'role_id',
+        'profile_id',
     ];
+
+    /**
+     * Check if the user has admin role.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' || (int)$this->role_id === 2;
+    }
+
+    /**
+     * Relationship to Kritik (comments)
+     */
+    public function kritiks()
+    {
+        return $this->hasMany(Kritik::class, 'user_id');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

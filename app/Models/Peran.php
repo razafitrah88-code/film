@@ -10,4 +10,20 @@ class Peran extends Model
     use HasFactory;
     protected $table = 'perans';
     protected $fillable = ['actor', 'film_id', 'cast_id'];
+
+    /**
+     * Relationship to Film
+     */
+    public function film()
+    {
+        return $this->belongsTo(Film::class, 'film_id');
+    }
+
+    /**
+     * Relationship to Cast
+     */
+    public function cast()
+    {
+        return $this->belongsTo(Cast::class, 'cast_id');
+    }
 }
